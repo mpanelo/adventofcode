@@ -1,33 +1,81 @@
-OPCODE_OFFSET = 4
-OPCODE_ADD = 1
-OPCODE_MULT = 2
-OPCODE_HALT = 99
+import itertools
+
+TARGET_SOLUTION = 19690720
 
 
 def main():
-    sequence = read_input()
-    process(sequence)
-    print(sequence)
+    program = IntcodeProgram(memory=VirtualMemory(src='input.txt'))
+    for noun, verb in itertools.product(range(100), repeat=2):
+        solution = program.simulate([(1, noun), (2, verb)])
+
+        if solution == TARGET_SOLUTION:
+            print("Solution Found!")
+            print(f"100 * noun + verb = {100 * noun + verb}")
+            break
 
 
-def read_input():
-    with open('input.txt', 'r') as file:
-        return [int(i) for i in file.read().strip().split(',')]
+class VirtualMemory:
+    def __init__(self, src='input.txt'):
+        self.src = src
+        self.memory = None
+        self.reset()
+
+    def reset(self):
+        with open(self.src, 'r') as file:
+            self.memory = [int(value) for value in file.read().strip().split(',')]
+
+    def get(self, address):
+        return self.memory[address]
+
+    def set(self, address, value):
+        self.memory[address] = value
 
 
+class IntcodeProgram:
+    INSTR_OFFSET = 4
+    OPCODE_ADD = 1
+    OPCODE_MULT = 2
+    OPCODE_HALT = 99
 
-def process(sequence):
-    for i in range(0, len(sequence), OPCODE_OFFSET):
-        opcode, p1, p2, dest = sequence[i:i+OPCODE_OFFSET]
+    def __init__(self, memory: VirtualMemory):
+        self.memory = memory
+        self.instr_pointer = 0
 
-        if opcode == OPCODE_ADD:
-            sequence[dest] = sequence[p1] + sequence[p2]
-        elif opcode == OPCODE_MULT:
-            sequence[dest] = sequence[p1] * sequence[p2]
-        elif opcode == OPCODE_HALT:
-            return
-        else:
-            raise Exception(f"Unknown opcode {opcode}!")
+    def simulate(self, memory_values):
+        self._prepare_memory(memory_values)
+
+        while True:
+            instr_opcode = self._read_pointer()
+
+            if instr_opcode == self.OPCODE_ADD:
+                p1 = self._read_pointer()
+                p2 = self._read_pointer()
+                dest = self._read_pointer()
+
+                self.memory.set(dest, self.memory.get(p1) + self.memory.get(p2))
+            elif instr_opcode == self.OPCODE_MULT:
+                p1 = self._read_pointer()
+                p2 = self._read_pointer()
+                dest = self._read_pointer()
+
+                self.memory.set(dest, self.memory.get(p1) * self.memory.get(p2))
+            elif instr_opcode == self.OPCODE_HALT:
+                break
+            else:
+                raise Exception(f"Unknown opcode {instr_opcode}!")
+
+        return self.memory.get(0)
+
+    def _read_pointer(self):
+        value = self.memory.get(self.instr_pointer)
+        self.instr_pointer += 1
+        return value
+
+    def _prepare_memory(self, memory_values):
+        self.memory.reset()
+        self.instr_pointer = 0
+        for address, value in memory_values:
+            self.memory.set(address, value)
 
 
 if __name__ == "__main__":
