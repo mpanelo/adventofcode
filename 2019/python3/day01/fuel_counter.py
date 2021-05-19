@@ -1,3 +1,5 @@
+import os
+
 def main():
     total_fuel_requirement = 0
     for mass in read_input():
@@ -6,7 +8,10 @@ def main():
 
 
 def read_input():
-    with open ('input.txt', 'r') as file:
+    curdir = os.path.dirname(__file__) 
+    datapath = os.path.join(curdir, './../../puzzledata/day01/input.txt')
+
+    with open(datapath, 'r') as file:
         for line in file:
             yield int(line.strip())
 

@@ -1,10 +1,14 @@
 import itertools
+import os
 
 TARGET_SOLUTION = 19690720
 
 
 def main():
-    program = IntcodeProgram(memory=VirtualMemory(src='input.txt'))
+    curdir = os.path.dirname(__file__) 
+    datapath = os.path.join(curdir, './../../puzzledata/day02/input.txt')
+
+    program = IntcodeProgram(memory=VirtualMemory(src=datapath))
     for noun, verb in itertools.product(range(100), repeat=2):
         solution = program.simulate([(1, noun), (2, verb)])
 
