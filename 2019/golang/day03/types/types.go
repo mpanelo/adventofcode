@@ -1,8 +1,15 @@
 package types
 
-type GridBoundary struct {
-	MinX int
-	MaxX int
-	MinY int
-	MaxY int
+type Wire struct {
+	Path []WireSection
+}
+
+type WireSection struct {
+	Direction rune
+	Steps     int
+}
+
+type Point struct {
+	X int
+	Y int
 }
