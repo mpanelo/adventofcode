@@ -7,16 +7,51 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mpanelo/adventofcode/2019/golang/day03/types"
+	"github.com/mpanelo/adventofcode/2019/golang/day03/point"
 )
 
-func ScanAllWires(datapath string) []*types.Wire {
+type Wire struct {
+	Path []WireSection
+}
+
+type WireSection struct {
+	Direction rune
+	Steps     int
+}
+
+func (w Wire) Points() point.Points {
+	var x, y, stepsTaken int
+	var points point.Points
+
+	for _, wireSection := range w.Path {
+		for i := 0; i < wireSection.Steps; i++ {
+			switch wireSection.Direction {
+			case 'U':
+				y = y + 1
+			case 'R':
+				x = x + 1
+			case 'D':
+				y = y - 1
+			case 'L':
+				x = x - 1
+			}
+
+			stepsTaken++
+			points = append(points, point.Point{X: x, Y: y, StepsTaken: stepsTaken})
+		}
+	}
+
+	return points
+
+}
+
+func ScanAllWires(datapath string) []*Wire {
 	file, err := os.Open(datapath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var wires []*types.Wire
+	var wires []*Wire
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -32,13 +67,13 @@ func ScanAllWires(datapath string) []*types.Wire {
 	return wires
 }
 
-func newWire(rawWire []string) *types.Wire {
-	wire := types.Wire{}
+func newWire(rawWire []string) *Wire {
+	wire := Wire{}
 
 	for _, rawSection := range rawWire {
 		runes := []rune(rawSection)
 
-		wireSection := types.WireSection{}
+		wireSection := WireSection{}
 
 		wireSection.Direction = runes[0]
 		steps, err := strconv.Atoi(string(runes[1:]))
