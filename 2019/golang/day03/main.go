@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-	// Puzzle 1
 	wires := wireio.ScanAllWires("../../puzzledata/day03/input.txt")
 
 	points1 := wires[0].Points()
